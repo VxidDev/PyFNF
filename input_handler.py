@@ -46,6 +46,7 @@ class InputHandler:
         for note in notes:
             if abs(note[1].centery - hit_y) < 100 and note[0] == 0:
                 print("EVENT: Note hit!")
+                ev_handler.game.hp = min(ev_handler.game.hp + ev_handler.game.hp_step, 100)
                 continue
 
             new_notes.append(note)
@@ -66,6 +67,7 @@ class InputHandler:
         for note in notes:
             if abs(note[1].centery - hit_y) < 100 and note[0] == 1:
                 print("EVENT: Note hit!")
+                ev_handler.game.hp = min(ev_handler.game.hp + ev_handler.game.hp_step, 100)
                 continue
 
             new_notes.append(note)
@@ -86,6 +88,7 @@ class InputHandler:
         for note in notes:
             if abs(note[1].centery - hit_y) < 100 and note[0] == 2:
                 print("EVENT: Note hit!")
+                ev_handler.game.hp = min(ev_handler.game.hp + ev_handler.game.hp_step, 100)
                 continue
 
             new_notes.append(note)
@@ -106,6 +109,7 @@ class InputHandler:
         for note in notes:
             if abs(note[1].centery - hit_y) < 100 and note[0] == 3:
                 print("EVENT: Note hit!")
+                ev_handler.game.hp = min(ev_handler.game.hp + ev_handler.game.hp_step, 100)
                 continue
 
             new_notes.append(note)
