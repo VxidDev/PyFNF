@@ -3,8 +3,12 @@ from window import Window
 from assets import AssetHandler
 from hp_bar import HpBar
 
-from colors import BLUE, RED
+import math
 
+from colors import BLUE, RED, PURPLE
+
+def lerp(a, b, t):
+    return a + (b - a) * t
 
 class Game:
     def __init__(self, window: Window, asset_handler: AssetHandler) -> None:
@@ -66,6 +70,19 @@ class Game:
 
         self.show_time = 500 
 
+        self.gf_main_menu_anim_curr_frame: int = 0
+        self.gf_main_menu_frame_accumulator = 0.0
+        self.gf_main_menu_fps: int = 18
+        self.gf_main_menu_frame_interval: int = 1.0 / self.gf_main_menu_fps
+
+        self.logo_main_menu_anim_curr_frame: int = 0
+        self.logo_main_menu_frame_accumulator = 0.0
+        self.logo_main_menu_fps: int = 6
+        self.logo_main_menu_frame_interval: int = 1.0 / self.logo_main_menu_fps
+
+        self.t = 0.0
+        self.speed = 1.0
+
     def update(self, dt: int, ev_handler: "EventHandler") -> None:
         if self.state == "game":
             notes: list[tuple[int, pygame.Rect]] = []
@@ -108,9 +125,38 @@ class Game:
 
                     if self.current_message >= len(self.asset_handler.intro_messages):
                         self.state = "waiting"
+                        
                     else:
                         self.menu_phase = "wait_before"
                         self.phase_start = current_ticks
+
+        elif self.state == "waiting":
+            self.gf_main_menu_frame_accumulator += dt
+            self.logo_main_menu_frame_accumulator += dt
+
+            if self.gf_main_menu_anim_curr_frame >= 19:
+                self.gf_main_menu_anim_curr_frame = 0
+
+            if self.logo_main_menu_anim_curr_frame >= 3:
+                self.logo_main_menu_anim_curr_frame = 0
+
+            if self.gf_main_menu_frame_accumulator >= self.gf_main_menu_frame_interval:
+                self.gf_main_menu_frame_accumulator -= self.gf_main_menu_frame_interval
+                self.gf_main_menu_anim_curr_frame += 1
+
+            if self.logo_main_menu_frame_accumulator >= self.logo_main_menu_frame_interval:
+                self.logo_main_menu_frame_accumulator -= self.logo_main_menu_frame_interval
+                self.logo_main_menu_anim_curr_frame += 1
+
+            self.t = (math.sin(pygame.time.get_ticks() * 0.0015) + 1) / 2
+
+            r = int(lerp(BLUE[0], PURPLE[0], self.t))
+            g = int(lerp(BLUE[1], PURPLE[1], self.t))
+            b = int(lerp(BLUE[2], PURPLE[2], self.t))
+
+            color = (r, g, b)
+
+            self.asset_handler.press_enter_text = self.asset_handler.giant_font.render("Press Enter to Begin", True, color)
 
     def render(self) -> None:
         if self.state == "game":
@@ -162,6 +208,21 @@ class Game:
                 )
 
         elif self.state == "waiting":
-            self.window.fill((10, 10, 10))
+            self.window.fill((0, 0, 0))
+
+            self.window.blit(
+                self.asset_handler.gf_main_menu_sprites[self.gf_main_menu_anim_curr_frame],
+                (self.window.width - 1180, self.window.height - 980)
+            )
+
+            self.window.blit(
+                self.asset_handler.logo_main_menu_sprites[self.logo_main_menu_anim_curr_frame],
+                (-50 , 0)
+            )
+
+            self.window.blit(
+                self.asset_handler.press_enter_text,
+                (self.window.width // 2 - 800, self.window.height - 200)
+            )
 
         self.window.flip()

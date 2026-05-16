@@ -134,3 +134,6 @@ class InputHandler:
             ev_handler.game.asset_handler.main_menu_song.stop()
             ev_handler.game.asset_handler.tutorial_song.play()
             ev_handler.game.state = "game"
+
+        if ev_handler.game.state == "menu":
+            ev_handler.game.state = "waiting"

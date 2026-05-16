@@ -56,9 +56,28 @@ class AssetHandler:
         self.main_menu_song: pygame.mixer.Sound = pygame.mixer.Sound("sounds/main-menu.mp3")
 
         self.big_font: pygame.font.Font = pygame.font.Font("fonts/big-font.ttf", size=90)
+        self.giant_font: pygame.font.Font = pygame.font.Font("fonts/big-font.ttf", size=125)
+
+        self.press_enter_text = self.giant_font.render("Press Enter to Begin", True, (0, 255, 255))
 
         self.intro_messages: list = [
             (2000, self.big_font.render("Inspired by Friday Night Funkin'", True, (255, 255, 255)), (-300, -50)),
             (0, self.big_font.render("Made in PyGame", True, (255, 255, 255)), (100, -50)),
             (2000, self.big_font.render("Welcome to PyFNF!", True, (255, 255, 255)), (80, -50))
         ]
+
+        self.gf_main_menu_sprites: list = []
+
+        for i in range(0, 20):
+            img: pygame.Surface = pygame.image.load(f"images/gf-main-menu-anim/{i + 1}.png").convert_alpha()
+            img = pygame.transform.scale(img, (img.get_width() * 1.5, img.get_height() * 1.5))
+
+            self.gf_main_menu_sprites.append(img)
+
+        self.logo_main_menu_sprites: list = []
+
+        for i in range(0, 4):
+            img: pygame.Surface = pygame.image.load(f"images/logo-main-menu-anim/{i + 1}.png").convert_alpha()
+            img = pygame.transform.scale(img, (img.get_width() * 1.45, img.get_height() * 1.45))
+
+            self.logo_main_menu_sprites.append(img)
