@@ -3,6 +3,7 @@ import pygame
 from window import Window
 
 pygame.mixer.init()
+pygame.font.init()
 
 class AssetHandler:
     def __init__(self, window: Window) -> None:
@@ -51,4 +52,13 @@ class AssetHandler:
         self.right_arr_target = pygame.transform.scale(self.right_arr_target, (150, 150))
         self.right_arr_target.set_colorkey((0, 0, 0))
 
-        self.tutorial_song: pygame.mixer.Sound = pygame.mixer.Sound("tutorial.mp3")
+        self.tutorial_song: pygame.mixer.Sound = pygame.mixer.Sound("sounds/tutorial.mp3")
+        self.main_menu_song: pygame.mixer.Sound = pygame.mixer.Sound("sounds/main-menu.mp3")
+
+        self.big_font: pygame.font.Font = pygame.font.Font("fonts/big-font.ttf", size=90)
+
+        self.intro_messages: list = [
+            (2000, self.big_font.render("Inspired by Friday Night Funkin'", True, (255, 255, 255)), (-300, -50)),
+            (0, self.big_font.render("Made in PyGame", True, (255, 255, 255)), (100, -50)),
+            (2000, self.big_font.render("Welcome to PyFNF!", True, (255, 255, 255)), (80, -50))
+        ]

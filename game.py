@@ -5,10 +5,13 @@ from hp_bar import HpBar
 
 from colors import BLUE, RED
 
+
 class Game:
     def __init__(self, window: Window, asset_handler: AssetHandler) -> None:
-        self.window: Window = window 
+        self.window = window 
         self.asset_handler = asset_handler
+
+        self.state = "menu"
 
         self.left_arr_pressed = False
         self.right_arr_pressed = False
@@ -17,7 +20,6 @@ class Game:
 
         self.hp = 50
         self.hp_step = 5
-
         self.bar = HpBar(self.hp, self.window)
 
         self.notes: list[tuple[int, pygame.rect.Rect]] = [
@@ -53,76 +55,113 @@ class Game:
             (1, pygame.rect.Rect(self.window.width // 2 - 200, self.window.height + 21750, 150, 150)),
             (3, pygame.rect.Rect(self.window.width // 2 + 200, self.window.height + 22000, 150, 150)),
         ]
-
         self.note_speed = 500
 
-        self.asset_handler.tutorial_song.play()
+        self.asset_handler.main_menu_song.play()
+
+        self.current_message = 0
+
+        self.menu_phase = "wait_before"
+        self.phase_start = pygame.time.get_ticks()
+
+        self.show_time = 500 
 
     def update(self, dt: int, ev_handler: "EventHandler") -> None:
-        notes: list[pygame.rect.Rect] = []
+        if self.state == "game":
+            notes: list[tuple[int, pygame.Rect]] = []
 
-        for note in self.notes:
-            note[1].y -= self.note_speed * dt
+            for lane, rect in self.notes:
+                rect.y -= self.note_speed * dt
 
-            if note[1].bottom < 0:
-                self.hp = max(0, self.hp - self.hp_step)
-                continue 
+                if rect.bottom < 0:
+                    self.hp = max(0, self.hp - self.hp_step)
+                    continue
 
-            notes.append(note)
+                notes.append((lane, rect))
 
+            self.notes = notes
 
-        self.notes = notes 
+            if len(self.notes) == 0 or self.hp <= 0:
+                ev_handler.running = False
 
-        if len(self.notes) == 0 or self.hp <= 0:
-            ev_handler.running = False
+            self.bar.update(self.hp)
 
-        self.bar.update(self.hp)
+        elif self.state == "menu":
+            current_ticks = pygame.time.get_ticks()
+            elapsed = current_ticks - self.phase_start
+
+            delay = self.asset_handler.intro_messages[self.current_message][0]
+
+            if self.menu_phase == "wait_before":
+                if elapsed >= delay:
+                    self.menu_phase = "show"
+                    self.phase_start = current_ticks
+
+            elif self.menu_phase == "show":
+                if elapsed >= self.show_time:
+                    self.menu_phase = "wait_after"
+                    self.phase_start = current_ticks
+
+            elif self.menu_phase == "wait_after":
+                if elapsed >= delay:
+                    self.current_message += 1
+
+                    if self.current_message >= len(self.asset_handler.intro_messages):
+                        self.state = "waiting"
+                    else:
+                        self.menu_phase = "wait_before"
+                        self.phase_start = current_ticks
 
     def render(self) -> None:
-        self.window.blit(self.asset_handler.bg, (0, 0))
+        if self.state == "game":
+            self.window.blit(self.asset_handler.bg, (0, 0))
 
-        self.window.blit(
-            self.asset_handler.left_arr if not self.left_arr_pressed else self.asset_handler.left_arr_on, 
-            self.asset_handler.left_arr_hitbox
-        )
+            self.window.blit(
+                self.asset_handler.left_arr if not self.left_arr_pressed else self.asset_handler.left_arr_on,
+                self.asset_handler.left_arr_hitbox
+            )
 
-        # self.window.draw_rect(RED, self.asset_handler.left_arr_hitbox)
+            self.window.blit(
+                self.asset_handler.down_arr if not self.down_arr_pressed else self.asset_handler.down_arr_on,
+                self.asset_handler.down_arr_hitbox
+            )
 
-        self.window.blit(
-            self.asset_handler.down_arr if not self.down_arr_pressed else self.asset_handler.down_arr_on, 
-            self.asset_handler.down_arr_hitbox
-        )
+            self.window.blit(
+                self.asset_handler.up_arr if not self.up_arr_pressed else self.asset_handler.up_arr_on,
+                self.asset_handler.up_arr_hitbox
+            )
 
-        # self.window.draw_rect(RED, self.asset_handler.down_arr_hitbox)
+            self.window.blit(
+                self.asset_handler.right_arr if not self.right_arr_pressed else self.asset_handler.right_arr_on,
+                self.asset_handler.right_arr_hitbox
+            )
 
-        self.window.blit(
-            self.asset_handler.up_arr if not self.up_arr_pressed else self.asset_handler.up_arr_on, 
-            self.asset_handler.up_arr_hitbox
-        )
+            self.bar.draw()
 
-        # self.window.draw_rect(RED, self.asset_handler.up_arr_hitbox)
+            for lane, rect in self.notes:
+                if lane == 0:
+                    self.window.blit(self.asset_handler.left_arr_target, (rect.x + 25, rect.y))
+                elif lane == 1:
+                    self.window.blit(self.asset_handler.down_arr_target, (rect.x + 25, rect.y))
+                elif lane == 2:
+                    self.window.blit(self.asset_handler.up_arr_target, (rect.x + 25, rect.y))
+                elif lane == 3:
+                    self.window.blit(self.asset_handler.right_arr_target, (rect.x + 25, rect.y))
+                else:
+                    self.window.draw_rect(BLUE, rect)
 
-        self.window.blit(
-            self.asset_handler.right_arr if not self.right_arr_pressed else self.asset_handler.right_arr_on, 
-            self.asset_handler.right_arr_hitbox
-        )
+        elif self.state == "menu":
+            self.window.fill((0, 0, 0))
 
-        # self.window.draw_rect(RED, self.asset_handler.right_arr_hitbox)
+            if self.menu_phase == "show":
+                message: tuple[int, pygame.Surface, tuple[int, int]] = self.asset_handler.intro_messages[self.current_message]
+                
+                self.window.blit(
+                    message[1],
+                    (self.window.width // 2 - 500 + message[2][0], self.window.height // 2 + message[2][1])
+                )
 
-        self.bar.draw()
-
-        for note in self.notes:
-            if note[0] == 0:
-                self.window.blit(self.asset_handler.left_arr_target, (note[1].x + 25, note[1].y))
-            elif note[0] == 1:
-                self.window.blit(self.asset_handler.down_arr_target, (note[1].x + 25, note[1].y))
-            elif note[0] == 2:
-                self.window.blit(self.asset_handler.up_arr_target, (note[1].x + 25, note[1].y))
-            elif note[0] == 3:
-                self.window.blit(self.asset_handler.right_arr_target, (note[1].x + 25, note[1].y))
-            else:
-                self.window.draw_rect(BLUE, note[1])
-
-            print(f"NOTE COORDINATES: x: {note[1].x} y: {note[1].y}")
+        elif self.state == "waiting":
+            self.window.fill((10, 10, 10))
 
         self.window.flip()

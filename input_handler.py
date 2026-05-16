@@ -13,7 +13,8 @@ class InputHandler:
             pygame.K_j: self.j_keydown,
             pygame.K_k: self.k_keydown,
             pygame.K_EQUALS: self.equals_keydown,
-            pygame.K_MINUS: self.minus_keydown
+            pygame.K_MINUS: self.minus_keydown,
+            pygame.K_RETURN: self.enter_keydown
         }
 
         self.keymap[pygame.KEYUP] = {
@@ -127,3 +128,9 @@ class InputHandler:
             return
 
         ev_handler.fps -= 5
+
+    def enter_keydown(self, ev: pygame.event.Event, ev_handler: EventHandler) -> None:
+        if ev_handler.game.state == "waiting":
+            ev_handler.game.asset_handler.main_menu_song.stop()
+            ev_handler.game.asset_handler.tutorial_song.play()
+            ev_handler.game.state = "game"
