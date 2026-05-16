@@ -35,4 +35,20 @@ class AssetHandler:
         self.up_arr_on: pygame.Surface = pygame.image.load("images/up-arr-on.png").convert_alpha()
         self.up_arr_on: pygame.Surface = pygame.transform.scale(self.up_arr_on, (150, 150))
 
+        self.left_arr_target: pygame.Surface = pygame.image.load("images/left-arr-target.png").convert_alpha()
+        self.left_arr_target = pygame.transform.scale(self.left_arr_target, (150, 150))
+        self.left_arr_target.set_colorkey((0, 0, 0))
+
+        self.down_arr_target: pygame.Surface = pygame.image.load("images/down-arr-target.png").convert_alpha()
+        self.down_arr_target = pygame.transform.scale(self.down_arr_target, (150, 150))
+        self.down_arr_target.set_colorkey((0, 0, 0))
+
+        self.up_arr_target: pygame.Surface = pygame.image.load("images/up-arr-target.png").convert_alpha()
+        self.up_arr_target = pygame.transform.scale(self.up_arr_target, (150, 150))
+        self.up_arr_target.set_colorkey((0, 0, 0))
+
+        self.right_arr_target: pygame.Surface = pygame.image.load("images/right-arr-target.png").convert_alpha()
+        self.right_arr_target = pygame.transform.scale(self.right_arr_target, (150, 150))
+        self.right_arr_target.set_colorkey((0, 0, 0))
+
         self.tutorial_song: pygame.mixer.Sound = pygame.mixer.Sound("tutorial.mp3")

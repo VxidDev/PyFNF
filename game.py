@@ -1,6 +1,7 @@
 import pygame 
 from window import Window
 from assets import AssetHandler
+from hp_bar import HpBar
 
 from colors import BLUE, RED
 
@@ -17,10 +18,14 @@ class Game:
         self.hp = 50
         self.hp_step = 5
 
-        self.health_bar = pygame.rect.Rect(self.window.width // 2 - 400, self.window.height - 200, 800, 50)
-        self.current_hp_bar = pygame.rect.Rect(self.window.width // 2 - 400, self.window.height - 200, 8 * self.hp, 50)
+        self.bar = HpBar(self.hp, self.window)
 
         self.notes: list[tuple[int, pygame.rect.Rect]] = [
+            #(0, pygame.rect.Rect(self.window.width // 2 - 400, self.window.height + 1000, 150, 150)), test 
+            #(1, pygame.rect.Rect(self.window.width // 2 - 200, self.window.height + 1500, 150, 150)), test
+            #(2, pygame.rect.Rect(self.window.width // 2, self.window.height + 2000, 150, 150)),       test
+            #(3, pygame.rect.Rect(self.window.width // 2 + 200, self.window.height + 2500, 150, 150)), test
+
             #(0, pygame.rect.Rect(self.window.width // 2 - 400, self.window.height + 3800, 150, 150)), gf
             #(3, pygame.rect.Rect(self.window.width // 2 + 200, self.window.height + 4300, 150, 150)), gf
             #(0, pygame.rect.Rect(self.window.width // 2 - 400, self.window.height + 5000, 150, 150)), gf
@@ -35,6 +40,18 @@ class Game:
             (1, pygame.rect.Rect(self.window.width // 2 - 200, self.window.height + 11600, 150, 150)), 
             (2, pygame.rect.Rect(self.window.width // 2, self.window.height + 12000, 150, 150)), 
             (1, pygame.rect.Rect(self.window.width // 2 - 200, self.window.height + 12700, 150, 150)),
+
+            (0, pygame.rect.Rect(self.window.width // 2 - 400, self.window.height + 15500, 150, 150)),
+            (2, pygame.rect.Rect(self.window.width // 2, self.window.height + 16250, 150, 150)),
+            (1, pygame.rect.Rect(self.window.width // 2 - 200, self.window.height + 17000, 150, 150)),
+            (3, pygame.rect.Rect(self.window.width // 2 + 200, self.window.height + 17500, 150, 150)),
+
+            (1, pygame.rect.Rect(self.window.width // 2 - 200, self.window.height + 20500, 150, 150)),
+            (1, pygame.rect.Rect(self.window.width // 2 - 200, self.window.height + 20750, 150, 150)),
+            (2, pygame.rect.Rect(self.window.width // 2, self.window.height + 21000, 150, 150)),
+            (1, pygame.rect.Rect(self.window.width // 2 - 200, self.window.height + 21500, 150, 150)),
+            (1, pygame.rect.Rect(self.window.width // 2 - 200, self.window.height + 21750, 150, 150)),
+            (3, pygame.rect.Rect(self.window.width // 2 + 200, self.window.height + 22000, 150, 150)),
         ]
 
         self.note_speed = 500
@@ -59,7 +76,7 @@ class Game:
         if len(self.notes) == 0 or self.hp <= 0:
             ev_handler.running = False
 
-        self.current_hp_bar.width = 8 * self.hp
+        self.bar.update(self.hp)
 
     def render(self) -> None:
         self.window.blit(self.asset_handler.bg, (0, 0))
@@ -92,11 +109,20 @@ class Game:
 
         # self.window.draw_rect(RED, self.asset_handler.right_arr_hitbox)
 
-        self.window.draw_rect(RED, self.health_bar)
-        self.window.draw_rect(BLUE, self.current_hp_bar)
+        self.bar.draw()
 
         for note in self.notes:
-            self.window.draw_rect(BLUE, note[1])
+            if note[0] == 0:
+                self.window.blit(self.asset_handler.left_arr_target, (note[1].x + 25, note[1].y))
+            elif note[0] == 1:
+                self.window.blit(self.asset_handler.down_arr_target, (note[1].x + 25, note[1].y))
+            elif note[0] == 2:
+                self.window.blit(self.asset_handler.up_arr_target, (note[1].x + 25, note[1].y))
+            elif note[0] == 3:
+                self.window.blit(self.asset_handler.right_arr_target, (note[1].x + 25, note[1].y))
+            else:
+                self.window.draw_rect(BLUE, note[1])
+
             print(f"NOTE COORDINATES: x: {note[1].x} y: {note[1].y}")
 
         self.window.flip()
