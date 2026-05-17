@@ -83,3 +83,16 @@ class AssetHandler:
             self.logo_intro_sprites.append(img)
 
         self.notif_sound: pygame.mixer.Sound = pygame.mixer.Sound("sounds/notif.mp3")
+
+        self.story_mode_main_menu_button: list[pygame.Surface] = []
+        self.story_mode_main_menu_on_button: list[pygame.Surface] = []
+
+        for i in range (0, 3):
+            img: pygame.Surface = pygame.image.load(f"images/menu-elements/story-mode-{i + 1}.png")
+            self.story_mode_main_menu_button.append(img)
+
+            img_size: tuple = img.get_size()
+
+            img: pygame.Surface = pygame.image.load(f"images/menu-elements/story-mode-on-{i + 1}.png")
+            img = pygame.transform.smoothscale(img, img_size)
+            self.story_mode_main_menu_on_button.append(img)

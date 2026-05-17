@@ -130,8 +130,12 @@ class InputHandler:
         ev_handler.fps -= 5
 
     def enter_keydown(self, ev: pygame.event.Event, ev_handler: EventHandler) -> None:
-        if ev_handler.game.state == "waiting":
+        if ev_handler.game.state == "waiting" and ev_handler.game.s_channel_1 is None:
             ev_handler.game.s_channel_1 = ev_handler.game.asset_handler.notif_sound.play()
+
+        if ev_handler.game.state == "menu" and ev_handler.game.s_channel_1 is None:
+            ev_handler.game.s_channel_1 = ev_handler.game.asset_handler.notif_sound.play()
+            ev_handler.game.story_mode_main_menu_clicked = True
 
         if ev_handler.game.state == "intro":
             ev_handler.game.state = "waiting"
