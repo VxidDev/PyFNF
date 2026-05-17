@@ -24,7 +24,7 @@ def main() -> None:
     input_handler: InputHandler = InputHandler()
 
     mod_loader: ModLoader = ModLoader(curr_dir)
-    game: Game = Game(window, asset_handler)
+    game: Game = Game(window, asset_handler, mod_loader.mod_entries)
 
     event_handler: EventHandler = EventHandler(
         game,

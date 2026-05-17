@@ -27,7 +27,7 @@ class Mod:
             with open(f"{self.mod_path}/data.json", "r") as mod_data:
                 mod_data_json: dict[str, str] = json.load(mod_data)
 
-                self.mod_name = self.mod_path / Path(mod_data_json["name"])
+                self.mod_name = mod_data_json["name"]
                 self.mod_bg_path = self.mod_path / Path(mod_data_json["bg"])
                 self.mod_song_path = self.mod_path / Path(mod_data_json["song"])
 

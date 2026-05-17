@@ -14,7 +14,9 @@ class InputHandler:
             pygame.K_k: self.k_keydown,
             pygame.K_EQUALS: self.equals_keydown,
             pygame.K_MINUS: self.minus_keydown,
-            pygame.K_RETURN: self.enter_keydown
+            pygame.K_RETURN: self.enter_keydown,
+            pygame.K_UP: self.up_keydown,
+            pygame.K_DOWN: self.down_keydown
         }
 
         self.keymap[pygame.KEYUP] = {
@@ -135,7 +137,27 @@ class InputHandler:
 
         if ev_handler.game.state == "menu" and ev_handler.game.s_channel_1 is None:
             ev_handler.game.s_channel_1 = ev_handler.game.asset_handler.notif_sound.play()
-            ev_handler.game.story_mode_main_menu_clicked = True
+
+            if ev_handler.game.main_menu_choice == 0:
+                ev_handler.game.main_menu_can_switch = False
+                ev_handler.game.story_mode_main_menu_clicked = True
+            else:
+                ev_handler.game.main_menu_can_switch = False
+                ev_handler.game.freeplay_main_menu_clicked = True
 
         if ev_handler.game.state == "intro":
             ev_handler.game.state = "waiting"
+
+    def up_keydown(self, ev: pygame.event.Event, ev_handler: EventHandler) -> None:
+        if ev_handler.game.state == "menu" and ev_handler.game.main_menu_can_switch:
+            if ev_handler.game.main_menu_choice <= 0:
+                ev_handler.game.main_menu_choice = ev_handler.game.main_menu_last_possible_choice
+            else:
+                ev_handler.game.main_menu_choice -= 1
+
+    def down_keydown(self, ev: pygame.event.Event, ev_handler: EventHandler) -> None:
+        if ev_handler.game.state == "menu" and ev_handler.game.main_menu_can_switch:
+            if ev_handler.game.main_menu_choice >= ev_handler.game.main_menu_last_possible_choice:
+                ev_handler.game.main_menu_choice = 0
+            else:
+                ev_handler.game.main_menu_choice += 1

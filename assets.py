@@ -96,3 +96,16 @@ class AssetHandler:
             img: pygame.Surface = pygame.image.load(f"images/menu-elements/story-mode-on-{i + 1}.png")
             img = pygame.transform.smoothscale(img, img_size)
             self.story_mode_main_menu_on_button.append(img)
+
+        self.freeplay_main_menu_button: list[pygame.Surface] = []
+        self.freeplay_main_menu_on_button: list[pygame.Surface] = []
+
+        for i in range (0, 3):
+            img: pygame.Surface = pygame.image.load(f"images/menu-elements/freeplay-{i + 1}.png")
+            self.freeplay_main_menu_button.append(img)
+
+            img_size: tuple = img.get_size()
+
+            img: pygame.Surface = pygame.image.load(f"images/menu-elements/freeplay-on-{i + 1}.png")
+            img = pygame.transform.smoothscale(img, img_size)
+            self.freeplay_main_menu_on_button.append(img)

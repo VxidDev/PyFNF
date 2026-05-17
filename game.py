@@ -3,6 +3,8 @@ from window import Window
 from assets import AssetHandler
 from hp_bar import HpBar
 
+from modding import Mod
+
 import math
 
 from colors import BLUE, RED, PURPLE
@@ -11,9 +13,10 @@ def lerp(a, b, t):
     return a + (b - a) * t
 
 class Game:
-    def __init__(self, window: Window, asset_handler: AssetHandler) -> None:
+    def __init__(self, window: Window, asset_handler: AssetHandler, mods: list[Mod]) -> None:
         self.window = window 
         self.asset_handler = asset_handler
+        self.mods = mods
 
         self.state = "intro"
 
@@ -91,12 +94,24 @@ class Game:
         self.press_enter_text_visible: bool = True
 
         self.story_mode_main_menu_dt_accumulator: float = 0.0
-        self.story_mode_main_menu_fps: int = 24
+        self.story_mode_main_menu_fps: int = 16
         self.story_mode_main_menu_frame_interval: int = 1.0 / self.story_mode_main_menu_fps
         self.story_mode_main_menu_curr_frame: int = 0
 
         self.story_mode_main_menu_text_visible: bool = True
         self.story_mode_main_menu_clicked: bool = False
+
+        self.freeplay_main_menu_dt_accumulator: float = 0.0
+        self.freeplay_main_menu_fps: int = 16
+        self.freeplay_main_menu_frame_interval: int = 1.0 / self.freeplay_main_menu_fps
+        self.freeplay_main_menu_curr_frame: int = 0
+
+        self.freeplay_main_menu_text_visible: bool = False
+        self.freeplay_main_menu_clicked: bool = False
+
+        self.main_menu_can_switch: bool = True
+        self.main_menu_choice: int = 0
+        self.main_menu_last_possible_choice: int = 1
 
     def update(self, dt: int, ev_handler: "EventHandler") -> None:
         if self.state == "game":
@@ -191,6 +206,15 @@ class Game:
             self.asset_handler.press_enter_text = self.asset_handler.giant_font.render("Press Enter to Begin", True, color)
 
         if self.state == "menu":
+            if self.main_menu_choice == 0:
+                self.freeplay_main_menu_text_visible = True
+
+                self.story_mode_main_menu_text_visible = False
+            else:
+                self.story_mode_main_menu_text_visible = True
+
+                self.freeplay_main_menu_text_visible = False
+
             self.story_mode_main_menu_dt_accumulator += dt 
 
             if self.story_mode_main_menu_dt_accumulator >= self.story_mode_main_menu_frame_interval:
@@ -203,10 +227,26 @@ class Game:
             if self.story_mode_main_menu_curr_frame >= 3:
                 self.story_mode_main_menu_curr_frame = 0
 
+            self.freeplay_main_menu_dt_accumulator += dt 
+
+            if self.freeplay_main_menu_dt_accumulator >= self.freeplay_main_menu_frame_interval:
+                self.freeplay_main_menu_dt_accumulator -= self.freeplay_main_menu_frame_interval
+                self.freeplay_main_menu_curr_frame += 1
+
+                if self.freeplay_main_menu_clicked:
+                    self.freeplay_main_menu_text_visible = not self.freeplay_main_menu_text_visible
+
+            if self.freeplay_main_menu_curr_frame >= 3:
+                self.freeplay_main_menu_curr_frame = 0
+
             if self.s_channel_1 is not None and not self.s_channel_1.get_busy():
-                self.asset_handler.intro_song.stop()
-                self.asset_handler.tutorial_song.play()
-                self.state = "game"
+                if self.story_mode_main_menu_clicked:
+                    self.asset_handler.intro_song.stop()
+                    self.asset_handler.tutorial_song.play()
+
+                    self.state = "game"
+                else:
+                    self.state = "freeplay"
 
     def render(self) -> None:
         if self.state == "game":
@@ -287,9 +327,33 @@ class Game:
             else:
                 story_mode_main_menu_frame = self.asset_handler.story_mode_main_menu_on_button[self.story_mode_main_menu_curr_frame]
 
+            if self.freeplay_main_menu_text_visible:
+                freeplay_main_menu_frame = self.asset_handler.freeplay_main_menu_button[self.freeplay_main_menu_curr_frame]
+            else:
+                freeplay_main_menu_frame = self.asset_handler.freeplay_main_menu_on_button[self.freeplay_main_menu_curr_frame]
+
             self.window.blit(
                 story_mode_main_menu_frame,
                 (self.window.width // 2 - 400, self.window.height // 2 - 350)
             )
+
+            self.window.blit(
+                freeplay_main_menu_frame,
+                (self.window.width // 2 - 300, self.window.height // 2 - 150)
+            )
+
+        if self.state == "freeplay":
+            self.window.blit(self.asset_handler.bg, (0, 0))
+            self.mods_len = len(self.mods)
+
+            for i in range(0, 5): # display only 5 mods for now, since no scrolling.
+                if i >= self.mods_len: break
+
+                mod = self.mods[i]
+
+                self.window.blit(
+                    self.asset_handler.giant_font.render(mod.mod_name, True, (255, 255, 255)),
+                    (self.window.width // 2 - 800, self.window.height - (1000 - 200 * i))    
+                )
 
         self.window.flip()
