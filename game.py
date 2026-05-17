@@ -210,7 +210,7 @@ class Game:
 
     def render(self) -> None:
         if self.state == "game":
-            self.window.blit(self.asset_handler.bg, (0, 0))
+            self.window.fill((0, 0, 0))
 
             self.window.blit(
                 self.asset_handler.left_arr if not self.left_arr_pressed else self.asset_handler.left_arr_on,
