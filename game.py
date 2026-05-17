@@ -15,7 +15,7 @@ class Game:
         self.window = window 
         self.asset_handler = asset_handler
 
-        self.state = "menu"
+        self.state = "intro"
 
         self.left_arr_pressed = False
         self.right_arr_pressed = False
@@ -61,27 +61,34 @@ class Game:
         ]
         self.note_speed = 500
 
-        self.asset_handler.main_menu_song.play()
+        self.asset_handler.intro_song.play()
 
         self.current_message = 0
 
-        self.menu_phase = "wait_before"
+        self.intro_phase = "wait_before"
         self.phase_start = pygame.time.get_ticks()
 
         self.show_time = 500 
 
-        self.gf_main_menu_anim_curr_frame: int = 0
-        self.gf_main_menu_frame_accumulator = 0.0
-        self.gf_main_menu_fps: int = 18
-        self.gf_main_menu_frame_interval: int = 1.0 / self.gf_main_menu_fps
+        self.gf_intro_anim_curr_frame: int = 0
+        self.gf_intro_frame_accumulator: float = 0.0
+        self.gf_intro_fps: int = 18
+        self.gf_intro_frame_interval: int = 1.0 / self.gf_intro_fps
 
-        self.logo_main_menu_anim_curr_frame: int = 0
-        self.logo_main_menu_frame_accumulator = 0.0
-        self.logo_main_menu_fps: int = 6
-        self.logo_main_menu_frame_interval: int = 1.0 / self.logo_main_menu_fps
+        self.logo_intro_anim_curr_frame: int = 0
+        self.logo_intro_frame_accumulator = 0.0
+        self.logo_intro_fps: int = 6
+        self.logo_intro_frame_interval: int = 1.0 / self.logo_intro_fps
 
         self.t = 0.0
         self.speed = 1.0
+
+        self.s_channel_1 = None
+
+        self.press_enter_text_dt_accumulator: float = 0.0
+        self.press_enter_text_fps: int = 30
+        self.press_enter_text_frame_interval: int = 1.0 / self.press_enter_text_fps
+        self.press_enter_text_visible: bool = True
 
     def update(self, dt: int, ev_handler: "EventHandler") -> None:
         if self.state == "game":
@@ -103,23 +110,23 @@ class Game:
 
             self.bar.update(self.hp)
 
-        elif self.state == "menu":
+        elif self.state == "intro":
             current_ticks = pygame.time.get_ticks()
             elapsed = current_ticks - self.phase_start
 
             delay = self.asset_handler.intro_messages[self.current_message][0]
 
-            if self.menu_phase == "wait_before":
+            if self.intro_phase == "wait_before":
                 if elapsed >= delay:
-                    self.menu_phase = "show"
+                    self.intro_phase = "show"
                     self.phase_start = current_ticks
 
-            elif self.menu_phase == "show":
+            elif self.intro_phase == "show":
                 if elapsed >= self.show_time:
-                    self.menu_phase = "wait_after"
+                    self.intro_phase = "wait_after"
                     self.phase_start = current_ticks
 
-            elif self.menu_phase == "wait_after":
+            elif self.intro_phase == "wait_after":
                 if elapsed >= delay:
                     self.current_message += 1
 
@@ -127,34 +134,52 @@ class Game:
                         self.state = "waiting"
                         
                     else:
-                        self.menu_phase = "wait_before"
+                        self.intro_phase = "wait_before"
                         self.phase_start = current_ticks
 
         elif self.state == "waiting":
-            self.gf_main_menu_frame_accumulator += dt
-            self.logo_main_menu_frame_accumulator += dt
+            self.gf_intro_frame_accumulator += dt
+            self.logo_intro_frame_accumulator += dt
 
-            if self.gf_main_menu_anim_curr_frame >= 19:
-                self.gf_main_menu_anim_curr_frame = 0
+            if self.gf_intro_anim_curr_frame >= 19:
+                self.gf_intro_anim_curr_frame = 0
 
-            if self.logo_main_menu_anim_curr_frame >= 3:
-                self.logo_main_menu_anim_curr_frame = 0
+            if self.logo_intro_anim_curr_frame >= 3:
+                self.logo_intro_anim_curr_frame = 0
 
-            if self.gf_main_menu_frame_accumulator >= self.gf_main_menu_frame_interval:
-                self.gf_main_menu_frame_accumulator -= self.gf_main_menu_frame_interval
-                self.gf_main_menu_anim_curr_frame += 1
+            if self.gf_intro_frame_accumulator >= self.gf_intro_frame_interval:
+                self.gf_intro_frame_accumulator -= self.gf_intro_frame_interval
+                self.gf_intro_anim_curr_frame += 1
 
-            if self.logo_main_menu_frame_accumulator >= self.logo_main_menu_frame_interval:
-                self.logo_main_menu_frame_accumulator -= self.logo_main_menu_frame_interval
-                self.logo_main_menu_anim_curr_frame += 1
+            if self.logo_intro_frame_accumulator >= self.logo_intro_frame_interval:
+                self.logo_intro_frame_accumulator -= self.logo_intro_frame_interval
+                self.logo_intro_anim_curr_frame += 1
 
-            self.t = (math.sin(pygame.time.get_ticks() * 0.0015) + 1) / 2
+            color = None
 
-            r = int(lerp(BLUE[0], PURPLE[0], self.t))
-            g = int(lerp(BLUE[1], PURPLE[1], self.t))
-            b = int(lerp(BLUE[2], PURPLE[2], self.t))
+            if self.s_channel_1 is None:
+                self.t = (math.sin(pygame.time.get_ticks() * 0.0015) + 1) / 2
 
-            color = (r, g, b)
+                r = int(lerp(BLUE[0], PURPLE[0], self.t))
+                g = int(lerp(BLUE[1], PURPLE[1], self.t))
+                b = int(lerp(BLUE[2], PURPLE[2], self.t))
+
+                color = (r, g, b)
+            else:
+                if not self.s_channel_1.get_busy():
+                    self.state = "game"
+                    self.asset_handler.intro_song.stop()
+                    self.asset_handler.tutorial_song.play()
+                    color = (255, 255, 255)
+                else:
+                    self.press_enter_text_dt_accumulator += dt
+
+                    if self.press_enter_text_dt_accumulator >= self.press_enter_text_frame_interval:
+                        self.press_enter_text_dt_accumulator -= self.press_enter_text_frame_interval
+
+                        self.press_enter_text_visible = not self.press_enter_text_visible
+
+                    color = (255, 255, 255) if self.press_enter_text_visible else (0, 0, 0)
 
             self.asset_handler.press_enter_text = self.asset_handler.giant_font.render("Press Enter to Begin", True, color)
 
@@ -196,10 +221,10 @@ class Game:
                 else:
                     self.window.draw_rect(BLUE, rect)
 
-        elif self.state == "menu":
+        elif self.state == "intro":
             self.window.fill((0, 0, 0))
 
-            if self.menu_phase == "show":
+            if self.intro_phase == "show":
                 message: tuple[int, pygame.Surface, tuple[int, int]] = self.asset_handler.intro_messages[self.current_message]
                 
                 self.window.blit(
@@ -210,13 +235,17 @@ class Game:
         elif self.state == "waiting":
             self.window.fill((0, 0, 0))
 
+            gf_sprite = self.asset_handler.gf_intro_sprites[self.gf_intro_anim_curr_frame]
+            rect = gf_sprite.get_rect()
+            rect.topleft = (self.window.width - 1180, self.window.height - 980)
+
             self.window.blit(
-                self.asset_handler.gf_main_menu_sprites[self.gf_main_menu_anim_curr_frame],
-                (self.window.width - 1180, self.window.height - 980)
+                gf_sprite,
+                rect
             )
 
             self.window.blit(
-                self.asset_handler.logo_main_menu_sprites[self.logo_main_menu_anim_curr_frame],
+                self.asset_handler.logo_intro_sprites[self.logo_intro_anim_curr_frame],
                 (-50 , 0)
             )
 

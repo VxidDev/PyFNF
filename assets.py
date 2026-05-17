@@ -53,7 +53,7 @@ class AssetHandler:
         self.right_arr_target.set_colorkey((0, 0, 0))
 
         self.tutorial_song: pygame.mixer.Sound = pygame.mixer.Sound("sounds/tutorial.mp3")
-        self.main_menu_song: pygame.mixer.Sound = pygame.mixer.Sound("sounds/main-menu.mp3")
+        self.intro_song: pygame.mixer.Sound = pygame.mixer.Sound("sounds/intro.mp3")
 
         self.big_font: pygame.font.Font = pygame.font.Font("fonts/big-font.ttf", size=90)
         self.giant_font: pygame.font.Font = pygame.font.Font("fonts/big-font.ttf", size=125)
@@ -66,18 +66,20 @@ class AssetHandler:
             (2000, self.big_font.render("Welcome to PyFNF!", True, (255, 255, 255)), (80, -50))
         ]
 
-        self.gf_main_menu_sprites: list = []
+        self.gf_intro_sprites: list[pygame.Surface] = []
 
         for i in range(0, 20):
-            img: pygame.Surface = pygame.image.load(f"images/gf-main-menu-anim/{i + 1}.png").convert_alpha()
-            img = pygame.transform.scale(img, (img.get_width() * 1.5, img.get_height() * 1.5))
+            img: pygame.Surface = pygame.image.load(f"images/gf-intro-anim/{i + 1}.png").convert_alpha()
+            img = pygame.transform.smoothscale(img, (700 * 1.5, 650 * 1.5))
 
-            self.gf_main_menu_sprites.append(img)
+            self.gf_intro_sprites.append(img)
 
-        self.logo_main_menu_sprites: list = []
+        self.logo_intro_sprites: list[pygame.Surface] = []
 
         for i in range(0, 4):
-            img: pygame.Surface = pygame.image.load(f"images/logo-main-menu-anim/{i + 1}.png").convert_alpha()
-            img = pygame.transform.scale(img, (img.get_width() * 1.45, img.get_height() * 1.45))
+            img: pygame.Surface = pygame.image.load(f"images/logo-intro-anim/{i + 1}.png").convert_alpha()
+            img = pygame.transform.smoothscale(img, (img.get_width() * 1.45, img.get_height() * 1.45))
 
-            self.logo_main_menu_sprites.append(img)
+            self.logo_intro_sprites.append(img)
+
+        self.notif_sound: pygame.mixer.Sound = pygame.mixer.Sound("sounds/notif.mp3")

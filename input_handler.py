@@ -131,9 +131,7 @@ class InputHandler:
 
     def enter_keydown(self, ev: pygame.event.Event, ev_handler: EventHandler) -> None:
         if ev_handler.game.state == "waiting":
-            ev_handler.game.asset_handler.main_menu_song.stop()
-            ev_handler.game.asset_handler.tutorial_song.play()
-            ev_handler.game.state = "game"
+            ev_handler.game.s_channel_1 = ev_handler.game.asset_handler.notif_sound.play()
 
-        if ev_handler.game.state == "menu":
+        if ev_handler.game.state == "intro":
             ev_handler.game.state = "waiting"
