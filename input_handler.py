@@ -16,7 +16,8 @@ class InputHandler:
             pygame.K_MINUS: self.minus_keydown,
             pygame.K_RETURN: self.enter_keydown,
             pygame.K_UP: self.up_keydown,
-            pygame.K_DOWN: self.down_keydown
+            pygame.K_DOWN: self.down_keydown,
+            pygame.K_ESCAPE: self.esc_keydown
         }
 
         self.keymap[pygame.KEYUP] = {
@@ -148,8 +149,19 @@ class InputHandler:
         if ev_handler.game.state == "intro":
             ev_handler.game.state = "waiting"
 
+    def esc_keydown(self, ev: pygame.event.Event, ev_handler: EventHandler) -> None:
+        if ev_handler.game.state == "freeplay":
+            ev_handler.game.asset_handler.menu_scroll_sound.play()
+
+            ev_handler.game.main_menu_can_switch = True
+            ev_handler.game.s_channel_1 = None
+            ev_handler.game.freeplay_main_menu_clicked = False
+            ev_handler.game.state = "menu"
+
     def up_keydown(self, ev: pygame.event.Event, ev_handler: EventHandler) -> None:
         if ev_handler.game.state == "menu" and ev_handler.game.main_menu_can_switch:
+            ev_handler.game.asset_handler.menu_scroll_sound.play()
+
             if ev_handler.game.main_menu_choice <= 0:
                 ev_handler.game.main_menu_choice = ev_handler.game.main_menu_last_possible_choice
             else:
@@ -157,6 +169,8 @@ class InputHandler:
 
     def down_keydown(self, ev: pygame.event.Event, ev_handler: EventHandler) -> None:
         if ev_handler.game.state == "menu" and ev_handler.game.main_menu_can_switch:
+            ev_handler.game.asset_handler.menu_scroll_sound.play()
+
             if ev_handler.game.main_menu_choice >= ev_handler.game.main_menu_last_possible_choice:
                 ev_handler.game.main_menu_choice = 0
             else:

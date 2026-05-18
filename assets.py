@@ -86,26 +86,39 @@ class AssetHandler:
 
         self.story_mode_main_menu_button: list[pygame.Surface] = []
         self.story_mode_main_menu_on_button: list[pygame.Surface] = []
+        self.story_mode_main_menu_on_button_resized: list[pygame.Surface] = []
 
-        for i in range (0, 3):
-            img: pygame.Surface = pygame.image.load(f"images/menu-elements/story-mode-{i + 1}.png")
+        for i in range (0, 3): # yep, ik I've mixed them up but I'm just too lazy to change image names :[ 
+            img: pygame.Surface = pygame.image.load(f"images/menu-elements/story-mode-{i + 1}.png").convert_alpha()
+            img_size: tuple = img.get_size()
+            img = pygame.transform.smoothscale(img, (img_size[0] * 1.5, img_size[1] * 1.5))
+
+            self.story_mode_main_menu_on_button.append(img)
+
+            img: pygame.Surface = pygame.image.load(f"images/menu-elements/story-mode-on-{i + 1}.png").convert_alpha()
             self.story_mode_main_menu_button.append(img)
 
-            img_size: tuple = img.get_size()
-
-            img: pygame.Surface = pygame.image.load(f"images/menu-elements/story-mode-on-{i + 1}.png")
-            img = pygame.transform.smoothscale(img, img_size)
-            self.story_mode_main_menu_on_button.append(img)
+            self.story_mode_main_menu_on_button_resized.append(
+                pygame.transform.smoothscale(img, (img_size[0] * 1.5, img_size[1] * 1.5))
+            )
 
         self.freeplay_main_menu_button: list[pygame.Surface] = []
         self.freeplay_main_menu_on_button: list[pygame.Surface] = []
+        self.freeplay_main_menu_on_resized_button: list[pygame.Surface] = []
 
-        for i in range (0, 3):
-            img: pygame.Surface = pygame.image.load(f"images/menu-elements/freeplay-{i + 1}.png")
+        for i in range (0, 3): # same here 
+            img: pygame.Surface = pygame.image.load(f"images/menu-elements/freeplay-{i + 1}.png").convert_alpha()
+            img_size: tuple = img.get_size()
+            img = pygame.transform.smoothscale(img, (img_size[0] * 1.5, img_size[1] * 1.5))
+
+            self.freeplay_main_menu_on_button.append(img)
+
+            img: pygame.Surface = pygame.image.load(f"images/menu-elements/freeplay-on-{i + 1}.png").convert_alpha()
+            img = pygame.transform.smoothscale(img, img_size)
             self.freeplay_main_menu_button.append(img)
 
-            img_size: tuple = img.get_size()
+            self.freeplay_main_menu_on_resized_button.append(
+                pygame.transform.smoothscale(img, (img_size[0] * 1.5, img_size[1] * 1.5))
+            )
 
-            img: pygame.Surface = pygame.image.load(f"images/menu-elements/freeplay-on-{i + 1}.png")
-            img = pygame.transform.smoothscale(img, img_size)
-            self.freeplay_main_menu_on_button.append(img)
+        self.menu_scroll_sound: pygame.mixer.Sound = pygame.mixer.Sound("sounds/scrollMenu.ogg")

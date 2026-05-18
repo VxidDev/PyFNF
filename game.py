@@ -323,23 +323,43 @@ class Game:
             self.window.blit(self.asset_handler.bg, (0, 0))
 
             if self.story_mode_main_menu_text_visible:
-                story_mode_main_menu_frame = self.asset_handler.story_mode_main_menu_button[self.story_mode_main_menu_curr_frame]
+                if self.main_menu_can_switch:
+                    story_mode_main_menu_frame = self.asset_handler.story_mode_main_menu_button[self.story_mode_main_menu_curr_frame]
+                    story_mode_main_menu_hitbox = (self.window.width // 2 - 310, self.window.height // 2 - 450)
+                else:
+                    if self.main_menu_choice == 0:
+                        story_mode_main_menu_frame = self.asset_handler.story_mode_main_menu_on_button_resized[self.story_mode_main_menu_curr_frame]
+                        story_mode_main_menu_hitbox = (self.window.width // 2 - 570, self.window.height // 2 - 450)
+                    else:
+                        story_mode_main_menu_frame = self.asset_handler.story_mode_main_menu_button[self.story_mode_main_menu_curr_frame]
+                        story_mode_main_menu_hitbox = (self.window.width // 2 - 310, self.window.height // 2 - 450)
             else:
                 story_mode_main_menu_frame = self.asset_handler.story_mode_main_menu_on_button[self.story_mode_main_menu_curr_frame]
+                story_mode_main_menu_hitbox = (self.window.width // 2 - 570, self.window.height // 2 - 450)
 
             if self.freeplay_main_menu_text_visible:
-                freeplay_main_menu_frame = self.asset_handler.freeplay_main_menu_button[self.freeplay_main_menu_curr_frame]
+                if self.main_menu_can_switch:
+                    freeplay_main_menu_frame = self.asset_handler.freeplay_main_menu_button[self.freeplay_main_menu_curr_frame]
+                    freeplay_main_menu_hitbox = (self.window.width // 2 - 330, self.window.height // 2 - 180)
+                else:
+                    if self.main_menu_choice == 1:
+                        freeplay_main_menu_frame = self.asset_handler.freeplay_main_menu_on_resized_button[self.freeplay_main_menu_curr_frame]
+                        freeplay_main_menu_hitbox = (self.window.width // 2 - 450, self.window.height // 2 - 300)
+                    else:
+                        freeplay_main_menu_frame = self.asset_handler.freeplay_main_menu_button[self.freeplay_main_menu_curr_frame]
+                        freeplay_main_menu_hitbox = (self.window.width // 2 - 330, self.window.height // 2 - 180)
             else:
                 freeplay_main_menu_frame = self.asset_handler.freeplay_main_menu_on_button[self.freeplay_main_menu_curr_frame]
+                freeplay_main_menu_hitbox = (self.window.width // 2 - 450, self.window.height // 2 - 300)
 
             self.window.blit(
                 story_mode_main_menu_frame,
-                (self.window.width // 2 - 400, self.window.height // 2 - 350)
+                story_mode_main_menu_hitbox
             )
 
             self.window.blit(
                 freeplay_main_menu_frame,
-                (self.window.width // 2 - 300, self.window.height // 2 - 150)
+                freeplay_main_menu_hitbox
             )
 
         if self.state == "freeplay":
