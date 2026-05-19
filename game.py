@@ -4,6 +4,7 @@ from assets import AssetHandler
 from hp_bar import HpBar
 
 from modding import Mod
+from animation import AnimatedSprite
 
 import math
 
@@ -73,15 +74,8 @@ class Game:
 
         self.show_time = 500 
 
-        self.gf_intro_anim_curr_frame: int = 0
-        self.gf_intro_frame_accumulator: float = 0.0
-        self.gf_intro_fps: int = 18
-        self.gf_intro_frame_interval: int = 1.0 / self.gf_intro_fps
-
-        self.logo_intro_anim_curr_frame: int = 0
-        self.logo_intro_frame_accumulator = 0.0
-        self.logo_intro_fps: int = 6
-        self.logo_intro_frame_interval: int = 1.0 / self.logo_intro_fps
+        self.gf_intro_sprite: AnimatedSprite = AnimatedSprite([self.asset_handler.gf_intro_sprites], 18)
+        self.logo_intro_sprite: AnimatedSprite = AnimatedSprite([self.asset_handler.logo_intro_sprites], 6)
 
         self.t = 0.0
         self.speed = 1.0
@@ -129,7 +123,12 @@ class Game:
             self.notes = notes
 
             if len(self.notes) == 0 or self.hp <= 0:
-                ev_handler.running = False
+                self.asset_handler.tutorial_song.stop() # only tutorial song for now
+                self.asset_handler.intro_song.play()
+                self.s_channel_1 = None
+                self.main_menu_can_switch = True
+                self.story_mode_main_menu_clicked = False
+                self.state = "menu"
 
             self.bar.update(self.hp)
 
@@ -161,22 +160,8 @@ class Game:
                         self.phase_start = current_ticks
 
         elif self.state == "waiting":
-            self.gf_intro_frame_accumulator += dt
-            self.logo_intro_frame_accumulator += dt
-
-            if self.gf_intro_anim_curr_frame >= 19:
-                self.gf_intro_anim_curr_frame = 0
-
-            if self.logo_intro_anim_curr_frame >= 3:
-                self.logo_intro_anim_curr_frame = 0
-
-            if self.gf_intro_frame_accumulator >= self.gf_intro_frame_interval:
-                self.gf_intro_frame_accumulator -= self.gf_intro_frame_interval
-                self.gf_intro_anim_curr_frame += 1
-
-            if self.logo_intro_frame_accumulator >= self.logo_intro_frame_interval:
-                self.logo_intro_frame_accumulator -= self.logo_intro_frame_interval
-                self.logo_intro_anim_curr_frame += 1
+            self.gf_intro_sprite.update(dt)
+            self.logo_intro_sprite.update(dt)
 
             color = None
 
@@ -300,7 +285,7 @@ class Game:
         elif self.state == "waiting":
             self.window.fill((0, 0, 0))
 
-            gf_sprite = self.asset_handler.gf_intro_sprites[self.gf_intro_anim_curr_frame]
+            gf_sprite = self.gf_intro_sprite.get_curr_frame()
             rect = gf_sprite.get_rect()
             rect.topleft = (self.window.width - 1180, self.window.height - 980)
 
@@ -310,7 +295,7 @@ class Game:
             )
 
             self.window.blit(
-                self.asset_handler.logo_intro_sprites[self.logo_intro_anim_curr_frame],
+                self.logo_intro_sprite.get_curr_frame(),
                 (-50 , 0)
             )
 
